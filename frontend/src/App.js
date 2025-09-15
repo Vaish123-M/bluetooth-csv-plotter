@@ -151,10 +151,10 @@ function App() {
     }
   };
 
-  // Set dark mode class on body
   React.useEffect(() => {
-    document.body.classList.toggle('dark-mode', darkMode);
-  }, [darkMode]);
+  document.body.classList.toggle('dark-mode', darkMode);
+  document.body.classList.toggle('light-mode', !darkMode);
+}, [darkMode]);
 
 
   // Return main JSX

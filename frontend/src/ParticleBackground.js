@@ -1,15 +1,11 @@
-// ParticleBackground.js
 import React, { useRef, useEffect } from "react";
 
-
-const PARTICLE_COUNT = 35;
 const PARTICLE_RADIUS = 5;
 const LINE_COLOR = "rgba(106, 90, 205, 0.5)";
-const PARTICLE_COLOR = "#8ec5fc";
+const PARTICLE_COLOR = "#0e1dc2ff";
 const TRIANGLE_COLOR = "rgba(142,197,252,0.09)";
 
 function getTriangles(points) {
-  // Return all unique triangles (combinations of 3 indices)
   const triangles = [];
   for (let i = 0; i < points.length; i++) {
     for (let j = i + 1; j < points.length; j++) {
@@ -22,36 +18,36 @@ function getTriangles(points) {
 }
 
 function randomVelocity() {
-  return (Math.random() - 0.5) * 1.6;
+  return (Math.random() - 0.5) * 1.3;
 }
 
 export default function ParticleBackground() {
   const canvasRef = useRef(null);
   const particles = useRef([]);
+  const PARTICLE_COUNT = Math.floor(window.innerWidth / 40); // Responsive density
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
-    let width = canvas.width = window.innerWidth;
-    let height = canvas.height = window.innerHeight;
 
     function resize() {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
     }
+
+    resize(); // Initial sizing
     window.addEventListener("resize", resize);
 
-    // Initialize particles
     particles.current = Array.from({ length: PARTICLE_COUNT }, () => ({
-      x: Math.random() * width,
-      y: Math.random() * height * 0.7 + 40,
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
       vx: randomVelocity(),
       vy: randomVelocity(),
     }));
 
     function animate() {
-      ctx.clearRect(0, 0, width, height);
-      // Draw triangles (only those with short edges)
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
       const triangles = getTriangles(particles.current);
       for (const [i, j, k] of triangles) {
         const a = particles.current[i], b = particles.current[j], c = particles.current[k];
@@ -68,7 +64,7 @@ export default function ParticleBackground() {
           ctx.fill();
         }
       }
-      // Draw lines between close particles
+
       for (let i = 0; i < PARTICLE_COUNT; i++) {
         for (let j = i + 1; j < PARTICLE_COUNT; j++) {
           const a = particles.current[i], b = particles.current[j];
@@ -83,28 +79,29 @@ export default function ParticleBackground() {
           }
         }
       }
-      // Draw particles
+
       for (let i = 0; i < PARTICLE_COUNT; i++) {
+        const p = particles.current[i];
         ctx.beginPath();
-        ctx.arc(particles.current[i].x, particles.current[i].y, PARTICLE_RADIUS, 0, 2 * Math.PI);
+        ctx.arc(p.x, p.y, PARTICLE_RADIUS, 0, 2 * Math.PI);
         ctx.fillStyle = PARTICLE_COLOR;
         ctx.shadowColor = LINE_COLOR;
         ctx.shadowBlur = 6;
         ctx.fill();
         ctx.shadowBlur = 0;
-      }
-      // Move particles
-      for (let i = 0; i < PARTICLE_COUNT; i++) {
-        let p = particles.current[i];
+
         p.x += p.vx;
         p.y += p.vy;
-        // Bounce off edges
-        if (p.x < PARTICLE_RADIUS || p.x > width - PARTICLE_RADIUS) p.vx *= -1;
-        if (p.y < PARTICLE_RADIUS || p.y > height - PARTICLE_RADIUS) p.vy *= -1;
+
+        if (p.x < PARTICLE_RADIUS || p.x > canvas.width - PARTICLE_RADIUS) p.vx *= -1;
+        if (p.y < PARTICLE_RADIUS || p.y > canvas.height - PARTICLE_RADIUS) p.vy *= -1;
       }
+
       requestAnimationFrame(animate);
     }
+
     animate();
+
     return () => {
       window.removeEventListener("resize", resize);
     };
@@ -121,10 +118,12 @@ export default function ParticleBackground() {
         height: "100vh",
         zIndex: 0,
         pointerEvents: "none",
+        display: "block",
       }}
-      width={window.innerWidth}
-      height={window.innerHeight}
       aria-hidden="true"
     />
+    
   );
+  
 }
+
