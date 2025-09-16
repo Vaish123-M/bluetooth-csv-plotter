@@ -14,6 +14,7 @@ function App() {
   const [devices, setDevices] = useState([]);
   const [deviceName, setDeviceName] = useState(null);
   const [status, setStatus] = useState("Not connected");
+  // eslint-disable-next-line
   const [received, setReceived] = useState("");
   const [csvFromBluetooth, setCsvFromBluetooth] = useState("");
   const [csvReceiving, setCsvReceiving] = useState(false);
@@ -151,10 +152,10 @@ function App() {
     }
   };
 
+  // Set dark mode class on body
   React.useEffect(() => {
-  document.body.classList.toggle('dark-mode', darkMode);
-  document.body.classList.toggle('light-mode', !darkMode);
-}, [darkMode]);
+    document.body.classList.toggle('dark-mode', darkMode);
+  }, [darkMode]);
 
 
   // Return main JSX
