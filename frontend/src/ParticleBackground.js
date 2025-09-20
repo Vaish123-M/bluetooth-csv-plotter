@@ -25,7 +25,7 @@ function randomVelocity() {
   return (Math.random() - 0.5) * 1.6;
 }
 
-export default function ParticleBackground() {
+export default function ParticleBackground({ blurOff = false }) {
   const canvasRef = useRef(null);
   const particles = useRef([]);
 
@@ -89,7 +89,7 @@ export default function ParticleBackground() {
         ctx.arc(particles.current[i].x, particles.current[i].y, PARTICLE_RADIUS, 0, 2 * Math.PI);
         ctx.fillStyle = PARTICLE_COLOR;
         ctx.shadowColor = LINE_COLOR;
-        ctx.shadowBlur = 6;
+        ctx.shadowBlur = blurOff ? 0 : 6;
         ctx.fill();
         ctx.shadowBlur = 0;
       }
@@ -108,7 +108,7 @@ export default function ParticleBackground() {
     return () => {
       window.removeEventListener("resize", resize);
     };
-  }, []);
+  }, [blurOff]);
 
   return (
     <canvas

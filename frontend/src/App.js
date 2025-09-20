@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import ParticleBackground from "./ParticleBackground";
 // Removed react-router-dom imports; using anchor links for navigation
 import Plot from "react-plotly.js";
-import "./App.css"; // Make sure this CSS file exists
+import "./App.css"; 
 
 const NUS_SERVICE = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
 const NUS_TX = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
@@ -14,7 +14,6 @@ function App() {
   const [devices, setDevices] = useState([]);
   const [deviceName, setDeviceName] = useState(null);
   const [status, setStatus] = useState("Not connected");
-  // eslint-disable-next-line
   const [received, setReceived] = useState("");
   const [csvFromBluetooth, setCsvFromBluetooth] = useState("");
   const [csvReceiving, setCsvReceiving] = useState(false);
@@ -190,8 +189,8 @@ function App() {
         </div>
       )}
 
-  {/* Live Particle Background */}
-  <ParticleBackground />
+  {/* Live Particle Background: pass blurOff for Bluetooth Comm page */}
+  <ParticleBackground blurOff={window.location.hash === '#bluetooth-section'} />
 
       {/* Landing Section with centered navbar and info directly in app-container */}
       <div className="app-container" id="landing">
@@ -313,8 +312,8 @@ function App() {
   </div>
 </div>
 <div className="bt-buttons">
-  <button className="gradient-btn" type="button" onClick={scanForDevice}>🔍 Scan</button>
-  <button className="gradient-btn" type="button" onClick={disconnect}>🔌 Disconnect</button>
+  <button className="nav-btn" type="button" onClick={scanForDevice}>🔍 Scan</button>
+  <button className="nav-btn" type="button" onClick={disconnect}>🔌 Disconnect</button>
 </div>
 
           {devices.length > 0 && (
