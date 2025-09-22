@@ -39,7 +39,10 @@ function App() {
       body: formData,
     })
       .then((res) => res.json())
-      .then((data) => setChartData(data))
+      .then((data) => {
+        console.log("Received data:", data); // Debug line
+        setChartData(data);
+      })
       .catch((err) => console.error("Error uploading CSV:", err));
   };
 
@@ -74,10 +77,13 @@ function App() {
       const service = await server.getPrimaryService(NUS_SERVICE);
 
       const rxChar = await service.getCharacteristic(NUS_RX);
+      console.log("Found RX characteristic:", rxChar.uuid);
       await rxChar.startNotifications();
+      console.log("Notifications started on RX characteristic");
       rxChar.addEventListener("characteristicvaluechanged", (event) => {
         const value = event.target.value;
         const decoded = new TextDecoder().decode(value);
+        console.log("Received from phone:", decoded);
         // CSV receive mode: accumulate CSV data
         if (csvReceiving) {
           if (decoded.includes("__CSV_END__")) {
@@ -272,15 +278,13 @@ function App() {
           <div className="plot-section">
             <h2>📈 Full Data Plot</h2>
             <Plot
-              data={chartData.columns
-                .filter((col) => col !== "Timestamp")
-                .map((col) => ({
-                  x: (chartData.all || chartData.preview).map((row) => row.Timestamp),
-                  y: (chartData.all || chartData.preview).map((row) => row[col]),
-                  type: "scatter",
-                  mode: "lines+markers",
-                  name: col,
-                }))}
+              data={chartData.columns.map((col, index) => ({
+                x: (chartData.all || chartData.preview).map((row, rowIndex) => rowIndex),
+                y: (chartData.all || chartData.preview).map((row) => row[col]),
+                type: "scatter",
+                mode: "lines+markers",
+                name: col,
+              }))}
               layout={{
                 width: 1100,
                 height: 500,
@@ -359,6 +363,25 @@ function App() {
               <pre style={{whiteSpace:'pre-wrap', wordBreak:'break-all'}}>{csvFromBluetooth.slice(0, 500)}{csvFromBluetooth.length > 500 ? "..." : ""}</pre>
             </div>
           )}
+
+          {/* Display received messages from phone */}
+          <div className="bt-received-device-box">
+            <h4>📨 Messages Received from Phone:</h4>
+            <div style={{
+              minHeight: '60px',
+              maxHeight: '150px', 
+              overflow: 'auto', 
+              background: '#f0f9ff', 
+              border: '1px solid #0ea5e9',
+              borderRadius: '8px',
+              padding: '10px',
+              fontFamily: 'monospace',
+              fontSize: '14px'
+            }}>
+              {received || "No messages received yet..."}
+            </div>
+          </div>
+
             <div className="bt-received-device-box">
   <h4>📡 Receiving From:</h4>
   <p>{deviceName || "No device connected"}</p>
