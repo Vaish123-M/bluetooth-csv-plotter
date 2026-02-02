@@ -10,23 +10,30 @@ Author: Thryv Mobility Assignment
 Date: September 2025
 """
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import pandas as pd
+import os
 
-app = Flask(__name__)
+# Set up static folder path for React build
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+REACT_BUILD_DIR = os.path.join(BASE_DIR, '../frontend/build')
+
+app = Flask(__name__, static_folder=REACT_BUILD_DIR, static_url_path='')
 CORS(app)  # Allow React frontend to communicate with Flask backend
 
-# ===== Root Route =====
-@app.route("/")
-def home():
-    """
-    Health check endpoint to verify server is running.
-    
-    Returns:
-        JSON response with welcome message
-    """
-    return jsonify({"message": "Hello from Flask backend 🚀"})
+# ===== Serve React Static Files =====
+@app.route('/')
+def serve_frontend():
+    """Serve the React frontend from the build folder."""
+    return send_from_directory(REACT_BUILD_DIR, 'index.html')
+
+@app.route('/<path:path>')
+def serve_static(path):
+    """Serve static files (JS, CSS, images) from the React build."""
+    if os.path.isfile(os.path.join(REACT_BUILD_DIR, path)):
+        return send_from_directory(REACT_BUILD_DIR, path)
+    return send_from_directory(REACT_BUILD_DIR, 'index.html')
 
 # ===== Core Task 2: CSV Upload & Preview =====
 @app.route("/upload_csv", methods=["POST"])
@@ -51,8 +58,12 @@ def upload_csv():
         return jsonify({"error": "No file uploaded"}), 400
 
     try:
-        # Parse CSV using pandas for robust handling
-        df = pd.read_csv(file)
+        # Parse CSV using pandas for robust handling - handle different encodings
+        try:
+            df = pd.read_csv(file, encoding='utf-8')
+        except UnicodeDecodeError:
+            file.seek(0)  # Reset file pointer
+            df = pd.read_csv(file, encoding='utf-16')
         
         # Prepare data in different formats for frontend use
         preview = df.head(10).to_dict(orient="records")  # First 10 rows for preview
