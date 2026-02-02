@@ -1,0 +1,13 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+README.md
+.env
+.DS_Store
+__pycache__
+*.pyc
+.pytest_cache
+frontend/build
+frontend/.env.local
+frontend/.env.production.local

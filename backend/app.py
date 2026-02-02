@@ -130,4 +130,6 @@ if __name__ == "__main__":
     
     For production deployment, use a WSGI server like Gunicorn.
     """
-    app.run(debug=True, port=5000)
+    import os
+    debug_mode = os.environ.get('FLASK_ENV') != 'production'
+    app.run(debug=debug_mode, port=5000, host='0.0.0.0')
