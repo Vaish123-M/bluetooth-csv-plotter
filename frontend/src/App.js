@@ -29,12 +29,14 @@ function App() {
 
   const handleFileChange = (e) => setCsvFile(e.target.files[0]);
 
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://127.0.0.1:5000";
+
   const handleUpload = () => {
     if (!csvFile) return alert("Please select a CSV file first!");
     const formData = new FormData();
     formData.append("file", csvFile);
 
-    fetch("http://127.0.0.1:5000/upload_csv", {
+    fetch(`${API_BASE_URL}/upload_csv`, {
       method: "POST",
       body: formData,
     })
@@ -119,7 +121,7 @@ function App() {
   // Send accumulated CSV to backend
   const uploadCsvFromBluetooth = () => {
     if (!csvFromBluetooth) return alert("No CSV data received!");
-    fetch("http://127.0.0.1:5000/upload_csv_text", {
+    fetch(`${API_BASE_URL}/upload_csv_text`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ csv: csvFromBluetooth })
