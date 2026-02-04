@@ -19,18 +19,28 @@ import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 REACT_BUILD_DIR = os.path.join(BASE_DIR, '../frontend/build')
 
-app = Flask(__name__, static_folder=REACT_BUILD_DIR, static_url_path='')
+# Create app with static folder if it exists
+if os.path.exists(REACT_BUILD_DIR):
+    app = Flask(__name__, static_folder=REACT_BUILD_DIR, static_url_path='')
+else:
+    app = Flask(__name__)
+
 CORS(app)  # Allow React frontend to communicate with Flask backend
 
 # ===== Serve React Static Files =====
 @app.route('/')
 def serve_frontend():
     """Serve the React frontend from the build folder."""
-    return send_from_directory(REACT_BUILD_DIR, 'index.html')
+    if os.path.exists(REACT_BUILD_DIR):
+        return send_from_directory(REACT_BUILD_DIR, 'index.html')
+    return jsonify({"message": "API Server Running. React frontend not built yet."})
 
 @app.route('/<path:path>')
 def serve_static(path):
     """Serve static files (JS, CSS, images) from the React build."""
+    if not os.path.exists(REACT_BUILD_DIR):
+        return jsonify({"error": "Frontend not found"}), 404
+    
     if os.path.isfile(os.path.join(REACT_BUILD_DIR, path)):
         return send_from_directory(REACT_BUILD_DIR, path)
     return send_from_directory(REACT_BUILD_DIR, 'index.html')
